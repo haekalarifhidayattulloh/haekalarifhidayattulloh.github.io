@@ -125,13 +125,36 @@
   
 <!-- End Biodata -->
 <!-- Musik Pembawa Suasana :( -->
-<audio src="gg.mp3" type="audio/mp3" autoplay="autoplay" style="display: none;"> </audio>
+<audio src="https://haekal-arif.my.id/gg.mp3" type="audio/mp3" autoplay="autoplay" style="display: none;"> </audio>
 	
 <!-- Footer -->
     </div>
     <footer>
         &copy; 2024 Haekal - Semua Hak Tidak Dilindungi:v
     </footer>
+ <!--awal fullscreen-->
+ 	<script>
+ 	function fs() {
+        var elem = document.documentElement;
+        if (elem.requestFullscreen) {
+          elem.requestFullscreen();
+        } else if (elem.msRequestFullscreen) {
+          elem.msRequestFullscreen();
+        } else if (elem.mozRequestFullScreen) {
+          elem.mozRequestFullScreen();
+        } else if (elem.webkitRequestFullscreen) {
+          elem.webkitRequestFullscreen();
+        }
+        document.getElementById("body").style.cursor = 'none';
+        document.onkeydown = function(e) {
+          return false;
+        }
+        document.addEventListener("keydown", e => {
+          if (e.key == "F11") e.preventDefault();
+        });
+      }
+    </script>
+  <!-- akhir fullscreen -->
 <!-- End Footer -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
   </body>
