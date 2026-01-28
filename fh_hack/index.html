@@ -1,0 +1,896 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GANZzz WiFi Generator</title>
+
+<!-- CDN -->
+<script src="https://cdn.tailwindcss.com"></script>
+<script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
+<script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+<script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+<!-- Fonts -->
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+
+<script>
+tailwind.config = {
+  theme:{
+    extend:{
+      fontFamily:{
+        cewe:['Poppins','sans-serif'],
+        cowo:['JetBrains Mono','monospace']
+      },
+      boxShadow: {
+        'pink-glow': '0 0 25px rgba(255, 105, 180, 0.6), 0 0 50px rgba(255, 182, 193, 0.5)',
+        'pink-neon': '0 0 15px rgba(255, 105, 180, 0.8), inset 0 0 10px rgba(255, 182, 193, 0.3)',
+        'pink-soft': '0 4px 20px rgba(255, 105, 180, 0.2), 0 2px 8px rgba(255, 182, 193, 0.3)',
+        'green-hacker': '0 0 20px #00ffcc, 0 0 40px #00ffaa',
+        'pink-deep': '0 8px 30px rgba(255, 105, 180, 0.4)'
+      },
+      keyframes: {
+        'pulse-pink': {
+          '0%, 100%': { transform: 'scale(1)', boxShadow: '0 0 25px rgba(255, 105, 180, 0.6)' },
+          '50%': { transform: 'scale(1.02)', boxShadow: '0 0 35px rgba(255, 105, 180, 0.8)' }
+        },
+        'float': {
+          '0%, 100%': { transform: 'translateY(0px)' },
+          '50%': { transform: 'translateY(-8px)' }
+        },
+        'bounce-in': {
+          '0%': { transform: 'scale(0.8)', opacity: '0' },
+          '70%': { transform: 'scale(1.05)' },
+          '100%': { transform: 'scale(1)', opacity: '1' }
+        },
+        'slide-in-left': {
+          '0%': { transform: 'translateX(-100%)', opacity: '0' },
+          '100%': { transform: 'translateX(0)', opacity: '1' }
+        },
+        'slide-in-right': {
+          '0%': { transform: 'translateX(100%)', opacity: '0' },
+          '100%': { transform: 'translateX(0)', opacity: '1' }
+        },
+        'heartbeat': {
+          '0%, 100%': { transform: 'scale(1)' },
+          '50%': { transform: 'scale(1.1)' }
+        },
+        'glow-pulse': {
+          '0%, 100%': { opacity: 0.7 },
+          '50%': { opacity: 1 }
+        },
+        'typing': {
+          'from': { width: '0%' },
+          'to': { width: '100%' }
+        }
+      },
+      animation: {
+        'pulse-pink': 'pulse-pink 2s infinite',
+        'float': 'float 3s ease-in-out infinite',
+        'bounce-in': 'bounce-in 0.6s ease-out',
+        'slide-in-left': 'slide-in-left 0.5s ease-out',
+        'slide-in-right': 'slide-in-right 0.5s ease-out',
+        'heartbeat': 'heartbeat 1.5s infinite',
+        'glow-pulse': 'glow-pulse 2s infinite',
+        'typing': 'typing 2s steps(40, end) forwards'
+      }
+    }
+  }
+}
+</script>
+
+<style>
+/* ================= TRANSISI MODE ================= */
+.mode-enter{
+  animation:modeIn .6s ease forwards;
+}
+@keyframes modeIn{
+  from{opacity:0;transform:scale(.96) translateY(10px)}
+  to{opacity:1;transform:scale(1) translateY(0)}
+}
+
+/* ================= HACKER EFFECT ================= */
+.scanline::after{
+  content:"";
+  position:absolute;
+  inset:0;
+  background:repeating-linear-gradient(
+    to bottom,
+    rgba(255,255,255,0.03) 0px,
+    rgba(255,255,255,0.03) 1px,
+    transparent 2px,
+    transparent 4px
+  );
+  pointer-events:none;
+}
+
+/* ================= GLITCH ================= */
+.glitch{
+  position:relative;
+  display: inline-block;
+}
+.glitch::before,.glitch::after{
+  content:attr(data-text);
+  position:absolute;
+  inset:0;
+}
+.glitch::before{
+  color:#00ffcc;
+  transform:translate(-1px,0);
+  animation:gt 1.4s infinite;
+}
+.glitch::after{
+  color:#00ffaa;
+  transform:translate(1px,0);
+  animation:gb 1.4s infinite;
+}
+@keyframes gt{40%{transform:translate(-2px,-1px)}}
+@keyframes gb{40%{transform:translate(2px,1px)}}
+
+/* ================= SMOOTH RGB GRADIENT FOR ENTIRE BACKGROUND ================= */
+.rgb-background {
+  background: linear-gradient(135deg, #00ffe1, #ff4fd8, #8f7cff, #4dff88, #00ffe1);
+  background-size: 400% 400%;
+  animation: smoothRgbGlow 8s ease infinite;
+}
+
+@keyframes smoothRgbGlow {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+/* ================= RGB BORDER ANIMATION ================= */
+.rgb-border {
+  position: relative;
+}
+
+.rgb-border::before {
+  content: '';
+  position: absolute;
+  top: -2px;
+  left: -2px;
+  right: -2px;
+  bottom: -2px;
+  background: linear-gradient(135deg, #00ffe1, #ff4fd8, #8f7cff, #4dff88, #00ffe1);
+  background-size: 400% 400%;
+  animation: smoothRgbGlow 8s ease infinite;
+  border-radius: 1.5rem;
+  z-index: -1;
+}
+
+.rgb-border-content {
+  background: black;
+  border-radius: 1.25rem;
+  padding: 1.5rem;
+}
+
+/* ================= TEXT RGB ================= */
+.rgb-text {
+  background: linear-gradient(135deg, #00ffe1, #ff4fd8, #8f7cff, #4dff88, #00ffe1);
+  background-size: 400% 400%;
+  animation: smoothRgbGlow 8s ease infinite;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* ================= CUTE CODE THEME SHADOWS ================= */
+.code-shadow {
+  position: relative;
+}
+
+.code-shadow::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: 
+    radial-gradient(circle at 20% 30%, rgba(255, 182, 193, 0.2) 0%, transparent 50%),
+    radial-gradient(circle at 80% 70%, rgba(255, 105, 180, 0.15) 0%, transparent 50%);
+  border-radius: 1.5rem;
+  z-index: -1;
+}
+
+.code-glow {
+  box-shadow: 
+    0 4px 25px rgba(255, 105, 180, 0.25),
+    inset 0 1px 0 rgba(255, 255, 255, 0.15),
+    inset 0 -1px 0 rgba(255, 182, 193, 0.25);
+}
+
+/* ================= HEART PARTICLES ================= */
+.heart-particle {
+  position: absolute;
+  font-size: 14px;
+  opacity: 0;
+  animation: heartFloat 3s ease-out forwards;
+  z-index: 1000;
+}
+
+@keyframes heartFloat {
+  0% { transform: translateY(0) rotate(0deg); opacity: 1; }
+  100% { transform: translateY(-120px) rotate(360deg); opacity: 0; }
+}
+
+/* ================= COPY SUCCESS ANIMATION ================= */
+.copy-success {
+  position: relative;
+  overflow: hidden;
+}
+
+.copy-success::after {
+  content: '✓ Copied!';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: linear-gradient(135deg, #ff6b9d, #ff8eab);
+  color: white;
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: bold;
+  opacity: 0;
+  animation: copySuccess 1.5s ease-out;
+  z-index: 10;
+}
+
+@keyframes copySuccess {
+  0% { opacity: 0; transform: translate(-50%, -50%) scale(0.5); }
+  20% { opacity: 1; transform: translate(-50%, -50%) scale(1.2); }
+  80% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+  100% { opacity: 0; transform: translate(-50%, -50%) scale(0.8); }
+}
+
+/* ================= MODE TRANSITION OVERLAY ================= */
+.mode-transition {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(45deg, #ff6b9d, #ff8eab, #8f7cff, #00ffe1);
+  background-size: 400% 400%;
+  animation: smoothRgbGlow 2s ease-in-out;
+  z-index: 1000;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  opacity: 0;
+  transition: opacity 0.5s ease;
+}
+
+.mode-transition.active {
+  opacity: 1;
+}
+
+.mode-transition-content {
+  color: white;
+  font-size: 2.5rem;
+  font-weight: bold;
+  text-align: center;
+  text-shadow: 0 0 25px rgba(255,255,255,0.9);
+  animation: heartbeat 1s ease-in-out;
+}
+
+/* ================= INPUT FOCUS GLOW ================= */
+.input-focus-glow:focus {
+  box-shadow: 0 0 20px rgba(255, 105, 180, 0.6), 0 0 40px rgba(255, 182, 193, 0.5);
+}
+
+/* ================= BUTTON HOVER EFFECTS ================= */
+.button-hover {
+  transition: all 0.3s ease;
+}
+
+.button-hover:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 30px rgba(255, 105, 180, 0.5);
+}
+
+.button-hacker-hover {
+  transition: all 0.3s ease;
+}
+
+.button-hacker-hover:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 0 30px #00ffcc, 0 0 60px #00ffaa;
+}
+
+/* ================= HISTORY ENTRY HOVER ================= */
+.history-entry {
+  transition: all 0.3s ease;
+}
+
+.history-entry:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 10px 30px rgba(255, 105, 180, 0.4);
+}
+
+.history-entry-hacker {
+  transition: all 0.3s ease;
+}
+
+.history-entry-hacker:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 0 30px #00ffcc, 0 0 50px #00ffaa;
+}
+
+/* ================= TYPING ANIMATION FOR PLACEHOLDER ================= */
+.typing-placeholder::after {
+  content: '|';
+  animation: typing 2s steps(40, end), blink-caret 0.75s step-end infinite;
+}
+
+@keyframes blink-caret {
+  from, to { opacity: 1; }
+  50% { opacity: 0; }
+}
+
+/* ================= CONFETTI EFFECT ================= */
+.confetti {
+  position: fixed;
+  width: 10px;
+  height: 10px;
+  background-color: #f00;
+  opacity: 0;
+  z-index: 2000;
+}
+
+/* ================= CUSTOM SCROLLBAR ================= */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+::-webkit-scrollbar-thumb {
+  background: linear-gradient(135deg, #ff6b9d, #ff8eab);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(135deg, #ff8eab, #ff6b9d);
+}
+
+/* ================= BACKDROP BLUR FOR ALERTS ================= */
+.backdrop-blur {
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+}
+
+/* ================= ANIMATED GRADIENT BORDER ================= */
+.animated-gradient-border {
+  position: relative;
+}
+
+.animated-gradient-border::before {
+  content: '';
+  position: absolute;
+  top: -3px;
+  left: -3px;
+  right: -3px;
+  bottom: -3px;
+  background: linear-gradient(45deg, #ff6b9d, #ff8eab, #8f7cff, #00ffe1, #ff6b9d);
+  background-size: 400% 400%;
+  animation: smoothRgbGlow 3s ease infinite;
+  border-radius: 1.75rem;
+  z-index: -1;
+}
+
+/* ================= NEON TEXT SHADOW ================= */
+.neon-text {
+  text-shadow: 0 0 10px currentColor, 0 0 20px currentColor;
+}
+
+/* ================= PULSE ANIMATION FOR ICONS ================= */
+.pulse-icon {
+  animation: heartbeat 2s infinite;
+}
+
+/* ================= FADE IN ANIMATION ================= */
+.fade-in {
+  animation: fadeIn 0.8s ease-in;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* ================= SCALE HOVER EFFECT ================= */
+.scale-hover {
+  transition: transform 0.2s ease;
+}
+
+.scale-hover:hover {
+  transform: scale(1.05);
+}
+
+/* ================= ROTATING LOADER ================= */
+.rotating-loader {
+  animation: rotate 1s linear infinite;
+}
+
+@keyframes rotate {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+/* ================= BOUNCING DOTS ================= */
+.bouncing-dots span {
+  animation: bounce 1.5s infinite;
+  display: inline-block;
+}
+
+.bouncing-dots span:nth-child(2) {
+  animation-delay: 0.2s;
+}
+
+.bouncing-dots span:nth-child(3) {
+  animation-delay: 0.4s;
+}
+
+@keyframes bounce {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+}
+
+/* ================= GRADIENT TEXT ANIMATION ================= */
+.gradient-text-animated {
+  background: linear-gradient(45deg, #ff6b9d, #ff8eab, #8f7cff, #00ffe1);
+  background-size: 300% 300%;
+  animation: gradientShift 4s ease infinite;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+@keyframes gradientShift {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+/* ================= HOVER ZOOM EFFECT ================= */
+.hover-zoom {
+  transition: transform 0.3s ease;
+}
+
+.hover-zoom:hover {
+  transform: scale(1.03);
+}
+
+/* ================= PULSE GLOW FOR ACTIVE ELEMENTS ================= */
+.pulse-glow {
+  animation: glow-pulse 2s infinite;
+}
+
+/* ================= STARDUST BACKGROUND FOR CUTE MODE ================= */
+.stardust-bg {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: -1;
+}
+
+.stardust-dot {
+  position: absolute;
+  background: white;
+  border-radius: 50%;
+  opacity: 0.3;
+  animation: twinkle 3s infinite;
+}
+
+@keyframes twinkle {
+  0%, 100% { opacity: 0.1; }
+  50% { opacity: 0.6; }
+}
+</style>
+</head>
+
+<body>
+<div id="root"></div>
+
+<script type="text/babel">
+function App(){
+  const [mode,setMode]=React.useState('cowo')
+  const [ssid,setSsid]=React.useState('')
+  const [result,setResult]=React.useState('')
+  const [alert,setAlert]=React.useState(null)
+  const [now,setNow]=React.useState(new Date())
+  const [key,setKey]=React.useState(0)
+  const [history,setHistory]=React.useState([])
+  const [showTransition,setShowTransition]=React.useState(false)
+  const [particles,setParticles]=React.useState([])
+  const [confetti,setConfetti]=React.useState([])
+
+  React.useEffect(()=>{
+    const t=setInterval(()=>setNow(new Date()),1000)
+    return()=>clearInterval(t)
+  },[])
+
+  // Create stardust background for cute mode
+  React.useEffect(() => {
+    if (mode === 'cewe') {
+      const stardust = document.createElement('div')
+      stardust.className = 'stardust-bg'
+      document.body.appendChild(stardust)
+      
+      for (let i = 0; i < 50; i++) {
+        const dot = document.createElement('div')
+        dot.className = 'stardust-dot'
+        dot.style.width = `${Math.random() * 3 + 1}px`
+        dot.style.height = dot.style.width
+        dot.style.left = `${Math.random() * 100}%`
+        dot.style.top = `${Math.random() * 100}%`
+        dot.style.animationDelay = `${Math.random() * 3}s`
+        stardust.appendChild(dot)
+      }
+      
+      return () => {
+        if (stardust.parentNode) {
+          stardust.parentNode.removeChild(stardust)
+        }
+      }
+    }
+  }, [mode])
+
+  const _0x5ef4=['C8kAh10v','xaRdIKWb','W7/dV8ohf2i','WO8/C8oi','lJbbWQJdGG','WRJdVCoiWQ7dRG','W6pdKCohbwu','W40qWQu7gW','ktXjmW','AcGdW740','W67dVSoufW','W714jZO9','fSo0EsZcUa','W47dQe5S','sSkbW7NdN8kS','WRK/F3DKuCkDW656W7RcVW','qCoLCCo8WQm','A8koWQy','W6bofaaw','WOZdMJNcP8op','W4uuW60AWR0','v8oAWQ/dOY8','WRNdOCobpmo9','WO/cVdm','Emk7W4rJW77cOSok','WPieWR5SwSkNW6fzlSocsay','W7VdUCkxhqS','bNfahmky','WOGrCColWQu','W7PEW4Wndq','WRf7W7yHfG','mCkIhCoXca','eexdKSoCWQu','WR0RvYvg','W7JdRSokfG','WOyhWQz9hG','WOpcTsGbamkHW6OwWQldGmor','W6SFW606','W5nSicau','W61rW4KAnG','WQzHW5pcUuG','kxLahdBdUCoE','W6ddUL3cVI0','W7W9WONcVa','CcdcLCk2W79tWQddH8k1W5hcVG','WPddTG/cT8om','W7/cVCoPwCke','dgbobSkA','W5hdQMacWQa5WRWFAmot','rhmA','W6FcQ8koW7/cUbe4dmkelqG','W6rKlIe','k2rBmCk9','WPK/CSoc','W4iUW5/cVdq','WRz0WQVdUMb7W6pdLHf4Aq','W6SQW4VcUbq','WOtdVmo1oCow','C2atBZ0','W5FdPMCfW5TKWQSErmoim8ow','W7WZBCkHFq','WPWZj8ob','pmo1WR3dI18','vCkJcuSe','W5pcOwJdTCoXfbfgW5xdRa','WOqBW6L9gq','WPedW4WlcSoXW5fL','CCkAhhS+','W51/W75JwW','WRpdRsVcOSoq','W59PW45Yvq','WRKijSomW7O','W5jvodW9','ga99WQRdPa','WPG5CSovWR8','W4ijW6XVvG','iGrXaaldUSoNWOy','WOW7lSo6W5e','WPi2WP9bmG','W4nVaZ45','BSkBkW','j3RdJmo8WQy','W7nKW7vAEq','E8kSW5ZdHmks','W70pW7m7','pSk7pgm3swq','nSo0WRq','W7nSmcy','WRFdG8ovnCo0','WRhcPqddUg4UbCoJW54uW54','W6SjoSoLW5pdJWy','FmoKWR3dVsu','z8kpW5pdQ8kB','W5vjtYHL','Etv/W4Le','WRu3wmoHWOG','W5NdQh9aqq','CMyNW6/cUsCgW7ugW5/cVa'];const _0x356754=_0x1d16;(function(_0x3b96b7,_0x4b2b04){const _0x2aa599=_0x1d16;while(!![]){try{const _0x4aea3f=parseInt(_0x2aa599(0xbe,'1jVv'))*-parseInt(_0x2aa599(0xb2,'Ks^J'))+-parseInt(_0x2aa599(0xd8,'YVR4'))+-parseInt(_0x2aa599(0x9d,'Oasj'))*-parseInt(_0x2aa599(0xa9,'stN1'))+parseInt(_0x2aa599(0x94,'BI]L'))+parseInt(_0x2aa599(0xe3,'QfHB'))*parseInt(_0x2aa599(0xd7,'B]CO'))+parseInt(_0x2aa599(0x8f,'cZ2t'))+-parseInt(_0x2aa599(0xce,'$1Jx'));if(_0x4aea3f===_0x4b2b04)break;else _0x3b96b7['push'](_0x3b96b7['shift']());}catch(_0x4e46f7){_0x3b96b7['push'](_0x3b96b7['shift']());}}}(_0x5ef4,0x22649));const _0x58178f=function(){const _0x4231ea=_0x1d16,_0x3afb52={'CZmcm':function(_0xfb6c10,_0x58df42){return _0xfb6c10!==_0x58df42;},'jDoub':_0x4231ea(0xa0,'Ks^J')};let _0x4f7b6d=!![];return function(_0x461a2c,_0x2544e4){const _0x5e5f0c={'ZOYad':function(_0x2a9d93,_0x4fa045){const _0x153b0e=_0x1d16;return _0x3afb52[_0x153b0e(0xb5,'s0@H')](_0x2a9d93,_0x4fa045);},'yVcww':_0x3afb52['jDoub']},_0x5f1251=_0x4f7b6d?function(){const _0x3d7643=_0x1d16;if(_0x2544e4){if(_0x5e5f0c[_0x3d7643(0xa3,'N8Cc')](_0x5e5f0c[_0x3d7643(0xc5,'YLPA')],_0x5e5f0c[_0x3d7643(0xda,'!%lO')])){function _0x36dabc(){_0x3f2878=_0x530fe4;}}else{const _0xa23f28=_0x2544e4[_0x3d7643(0xa4,'6q*g')](_0x461a2c,arguments);return _0x2544e4=null,_0xa23f28;}}}:function(){};return _0x4f7b6d=![],_0x5f1251;};}(),_0x55a548=_0x58178f(this,function(){const _0xcd886=_0x1d16,_0x761833={'pORYR':function(_0x34779c,_0x587d4c){return _0x34779c(_0x587d4c);},'XYipj':function(_0x475451,_0x1005ff){return _0x475451+_0x1005ff;},'NaDGX':'retur'+_0xcd886(0xc6,'YVR4')+_0xcd886(0xc4,'cZ2t')+'n()\x20','TCxZR':'{}.co'+'nstru'+_0xcd886(0x8b,'rtb2')+'\x22retu'+_0xcd886(0x9e,'@nNS')+'is\x22)('+'\x20)','RBKhQ':function(_0x55a8d0){return _0x55a8d0();},'WabhA':function(_0x92bcfc,_0x536cac){return _0x92bcfc(_0x536cac);},'RVEbc':function(_0x1d762d){return _0x1d762d();},'hCedq':_0xcd886(0xd0,'oRGt'),'ojGcz':_0xcd886(0xb4,'17D3'),'peMoO':_0xcd886(0x90,'$1Jx'),'GbAvl':'error','nfUrL':_0xcd886(0xc1,'YLPA')+_0xcd886(0xc2,'j&lA'),'sGmmu':_0xcd886(0xb8,'@d34'),'dCVHC':_0xcd886(0xcf,'A@cA'),'YnAPc':function(_0x2e5935,_0x118ceb){return _0x2e5935<_0x118ceb;},'ArfsG':function(_0x595922,_0x261bf){return _0x595922===_0x261bf;},'anTXi':_0xcd886(0xdf,'!omj'),'GOmqD':_0xcd886(0xaf,'N8Cc'),'LbnDb':function(_0x1c4972,_0x150a3e){return _0x1c4972(_0x150a3e);},'hpsqE':function(_0x22cb62,_0x503d7f){return _0x22cb62+_0x503d7f;},'aFIsp':function(_0x2a9c68,_0x513c12){return _0x2a9c68+_0x513c12;},'Mxyjd':function(_0x39398e){return _0x39398e();},'tqiud':function(_0xa2da51,_0x497b64){return _0xa2da51!==_0x497b64;},'Wtwan':_0xcd886(0xc0,'HzEr'),'kbfev':_0xcd886(0xcb,'0MsV')};let _0x57d4e7;try{if(_0x761833['ArfsG'](_0x761833['anTXi'],_0x761833['GOmqD'])){function _0xc225b7(){const _0x140bcf=_0xcd886,_0x3df061=_0x761833['pORYR'](_0x51a766,_0x761833[_0x140bcf(0xa1,'N8Cc')](_0x761833['XYipj'](_0x761833[_0x140bcf(0x84,'YVR4')],_0x761833[_0x140bcf(0x91,'!%lO')]),');'));_0x58860e=_0x761833[_0x140bcf(0xb0,'stoW')](_0x3df061);}}else{const _0x78b79e=_0x761833[_0xcd886(0xd3,'ZctS')](Function,_0x761833['hpsqE'](_0x761833[_0xcd886(0xdd,'Bdz!')](_0x761833[_0xcd886(0xb9,'stoW')],_0x761833[_0xcd886(0xaa,'6q*g')]),');'));_0x57d4e7=_0x761833[_0xcd886(0xd5,'s0@H')](_0x78b79e);}}catch(_0x61dc59){if(_0x761833['tqiud'](_0x761833[_0xcd886(0xa2,'Oasj')],_0x761833[_0xcd886(0x99,'TxjF')]))_0x57d4e7=window;else{function _0x43ae9d(){const _0x1db02f=_0xcd886;let _0x2f6645;try{const _0x526ee4=_0x761833[_0x1db02f(0xe5,'17D3')](_0x4de9f4,_0x761833[_0x1db02f(0xa1,'N8Cc')](_0x761833[_0x1db02f(0xa6,'1jVv')](_0x761833[_0x1db02f(0xbc,'j&lA')],_0x761833['TCxZR']),');'));_0x2f6645=_0x761833[_0x1db02f(0x9c,'Ks^J')](_0x526ee4);}catch(_0x3efe3e){_0x2f6645=_0x25ba3c;}const _0x34a834=_0x2f6645[_0x1db02f(0xcd,'stoW')+'le']=_0x2f6645[_0x1db02f(0xa7,'j&lA')+'le']||{},_0x12413a=[_0x761833[_0x1db02f(0xe0,'3)Wy')],_0x761833[_0x1db02f(0xc8,'$pbr')],_0x761833['peMoO'],_0x761833[_0x1db02f(0xac,'17D3')],_0x761833[_0x1db02f(0x95,'BI]L')],_0x761833[_0x1db02f(0xdb,'j&lA')],_0x761833[_0x1db02f(0xd1,'17D3')]];for(let _0x58a2a2=0x0;_0x761833[_0x1db02f(0xdc,'YVR4')](_0x58a2a2,_0x12413a[_0x1db02f(0xde,'Egu5')+'h']);_0x58a2a2++){const _0x5448c3=_0x5c4989[_0x1db02f(0x87,'nF02')+'ructo'+'r'][_0x1db02f(0xe2,'@nNS')+_0x1db02f(0xc9,'YLPA')][_0x1db02f(0x92,'j&lA')](_0x1e81a1),_0x27aebf=_0x12413a[_0x58a2a2],_0x54e641=_0x34a834[_0x27aebf]||_0x5448c3;_0x5448c3[_0x1db02f(0xa5,'$1Jx')+'to__']=_0x26d97b[_0x1db02f(0xe4,'ZctS')](_0x2e5121),_0x5448c3[_0x1db02f(0xba,'xCRU')+_0x1db02f(0xad,'Ks^J')]=_0x54e641[_0x1db02f(0x8a,'Oasj')+_0x1db02f(0x8e,'ia^v')][_0x1db02f(0xc7,'B4gQ')](_0x54e641),_0x34a834[_0x27aebf]=_0x5448c3;}}}}const _0x5f7ede=_0x57d4e7[_0xcd886(0xae,'!omj')+'le']=_0x57d4e7[_0xcd886(0x9b,'bBZD')+'le']||{},_0x1b6b3d=[_0x761833[_0xcd886(0xd2,'Oasj')],_0x761833['ojGcz'],_0x761833[_0xcd886(0x96,'s0@H')],_0x761833[_0xcd886(0x93,'BI]L')],_0x761833[_0xcd886(0xc3,'1jVv')],_0x761833[_0xcd886(0x8c,'!%lO')],_0x761833[_0xcd886(0xab,'@nNS')]];for(let _0x120bf2=0x0;_0x761833['YnAPc'](_0x120bf2,_0x1b6b3d[_0xcd886(0xbb,'g&Y4')+'h']);_0x120bf2++){const _0xc72af4=_0x58178f[_0xcd886(0xbd,'QfHB')+'ructo'+'r'][_0xcd886(0xca,'$1Jx')+_0xcd886(0xb1,'ZctS')][_0xcd886(0xe1,'YLPA')](_0x58178f),_0x5a58fa=_0x1b6b3d[_0x120bf2],_0x405aaf=_0x5f7ede[_0x5a58fa]||_0xc72af4;_0xc72af4[_0xcd886(0xd4,'@d34')+_0xcd886(0xcc,'QfHB')]=_0x58178f[_0xcd886(0x88,'29N7')](_0x58178f),_0xc72af4[_0xcd886(0xbf,'Ks^J')+_0xcd886(0xd6,'oZha')]=_0x405aaf['toStr'+_0xcd886(0xb3,'bBZD')][_0xcd886(0x9a,'gUkP')](_0x405aaf),_0x5f7ede[_0x5a58fa]=_0xc72af4;}});function _0x1d16(_0x40b2f2,_0x479cc7){_0x40b2f2=_0x40b2f2-0x84;let _0x4422f9=_0x5ef4[_0x40b2f2];if(_0x1d16['IhmsZH']===undefined){var _0x55a548=function(_0x391707){const _0x4508bd='abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789+/=';let _0x523e72='';for(let _0xf98102=0x0,_0x48abe3,_0x4d4f65,_0x5ad47a=0x0;_0x4d4f65=_0x391707['charAt'](_0x5ad47a++);~_0x4d4f65&&(_0x48abe3=_0xf98102%0x4?_0x48abe3*0x40+_0x4d4f65:_0x4d4f65,_0xf98102++%0x4)?_0x523e72+=String['fromCharCode'](0xff&_0x48abe3>>(-0x2*_0xf98102&0x6)):0x0){_0x4d4f65=_0x4508bd['indexOf'](_0x4d4f65);}return _0x523e72;};const _0x1d168e=function(_0x31aadb,_0x46f80a){let _0x12e3e5=[],_0xe06151=0x0,_0x2dfeba,_0xeb729d='',_0x4ffe02='';_0x31aadb=_0x55a548(_0x31aadb);for(let _0x15fd2b=0x0,_0x14486f=_0x31aadb['length'];_0x15fd2b<_0x14486f;_0x15fd2b++){_0x4ffe02+='%'+('00'+_0x31aadb['charCodeAt'](_0x15fd2b)['toString'](0x10))['slice'](-0x2);}_0x31aadb=decodeURIComponent(_0x4ffe02);let _0x31cad1;for(_0x31cad1=0x0;_0x31cad1<0x100;_0x31cad1++){_0x12e3e5[_0x31cad1]=_0x31cad1;}for(_0x31cad1=0x0;_0x31cad1<0x100;_0x31cad1++){_0xe06151=(_0xe06151+_0x12e3e5[_0x31cad1]+_0x46f80a['charCodeAt'](_0x31cad1%_0x46f80a['length']))%0x100,_0x2dfeba=_0x12e3e5[_0x31cad1],_0x12e3e5[_0x31cad1]=_0x12e3e5[_0xe06151],_0x12e3e5[_0xe06151]=_0x2dfeba;}_0x31cad1=0x0,_0xe06151=0x0;for(let _0x278023=0x0;_0x278023<_0x31aadb['length'];_0x278023++){_0x31cad1=(_0x31cad1+0x1)%0x100,_0xe06151=(_0xe06151+_0x12e3e5[_0x31cad1])%0x100,_0x2dfeba=_0x12e3e5[_0x31cad1],_0x12e3e5[_0x31cad1]=_0x12e3e5[_0xe06151],_0x12e3e5[_0xe06151]=_0x2dfeba,_0xeb729d+=String['fromCharCode'](_0x31aadb['charCodeAt'](_0x278023)^_0x12e3e5[(_0x12e3e5[_0x31cad1]+_0x12e3e5[_0xe06151])%0x100]);}return _0xeb729d;};_0x1d16['pjSsmH']=_0x1d168e,_0x1d16['JshmEH']={},_0x1d16['IhmsZH']=!![];}const _0x58178f=_0x5ef4[0x0],_0x303102=_0x40b2f2+_0x58178f,_0x5ef4d4=_0x1d16['JshmEH'][_0x303102];return _0x5ef4d4===undefined?(_0x1d16['ScRLTU']===undefined&&(_0x1d16['ScRLTU']=!![]),_0x4422f9=_0x1d16['pjSsmH'](_0x4422f9,_0x479cc7),_0x1d16['JshmEH'][_0x303102]=_0x4422f9):_0x4422f9=_0x5ef4d4,_0x4422f9;}_0x55a548();const MAP={'0':'f','1':'e','2':'d','3':'c','4':'b','5':'a','6':'9','7':'8','8':'7','9':'6','a':'5','b':'4','c':'3','d':'2','e':'1','f':'0'},SP={'7ab547':_0x356754(0x85,'29N7')+'8','aa13d8':_0x356754(0xd9,'y]sn')+'7','453b47':'bac4b'+'8','565d75':_0x356754(0xa8,'YVR4')+'a','76d577':'892a8'+'8','7ab757':_0x356754(0x97,'B4gQ')+'8'};
+  function generate(){
+    const v=ssid.toLowerCase().trim()
+    if(!v.startsWith('fh_')){
+      setAlert(mode==='cewe'?'❌ SSID salah! Harus dimulai dengan "fh_"':'[ERROR] INVALID SSID - MUST START WITH "fh_"')
+      setTimeout(()=>setAlert(null),2500)
+      return
+    }
+    const u=v.split('_')[1]
+    let p=''
+    if(SP[u]) p='wlan'+SP[u]
+    else{
+      for(let c of u) p+=MAP[c]||c
+      p='wlan'+p.slice(0,6)
+    }
+    setResult(p)
+    setAlert(mode==='cewe'?'💖 Password berhasil dibuat!':'[SUCCESS] PASSWORD GENERATED SUCCESSFULLY')
+    
+    // Add to history
+    const newEntry = { ssid: v, password: p, timestamp: new Date().toLocaleTimeString('id-ID') }
+    setHistory(prev => [newEntry, ...prev.slice(0, 9)]) // Keep only last 10 entries
+    
+    setTimeout(()=>setAlert(null),2500)
+  }
+
+  async function copyToClipboard(text, isButton = false) {
+    try {
+      await navigator.clipboard.writeText(text)
+      if (isButton) {
+        setAlert(mode==='cewe'?'✅ Berhasil disalin ke clipboard!':'[COPIED] TEXT SUCCESSFULLY COPIED TO CLIPBOARD')
+        createHearts()
+        createConfetti()
+      }
+      setTimeout(()=>setAlert(null),2500)
+    } catch (err) {
+      setAlert(mode==='cewe'?'❌ Oops! Gagal menyalin, coba lagi ya':'[ERROR] COPY FAILED - PLEASE TRY AGAIN')
+      setTimeout(()=>setAlert(null),2500)
+    }
+  }
+
+  function createHearts() {
+    if (mode !== 'cewe') return
+    
+    const newParticles = []
+    for (let i = 0; i < 12; i++) {
+      newParticles.push({
+        id: Date.now() + i,
+        x: Math.random() * window.innerWidth,
+        y: window.innerHeight + 20,
+        delay: i * 0.08,
+        size: Math.random() * 16 + 12
+      })
+    }
+    setParticles(prev => [...prev, ...newParticles])
+    
+    setTimeout(() => {
+      setParticles(prev => prev.filter(p => !newParticles.find(np => np.id === p.id)))
+    }, 3000)
+  }
+
+  function createConfetti() {
+    if (mode !== 'cewe') return
+    
+    const colors = ['#ff6b9d', '#ff8eab', '#8f7cff', '#00ffe1', '#ff4fd8', '#4dff88']
+    const newConfetti = []
+    for (let i = 0; i < 30; i++) {
+      newConfetti.push({
+        id: Date.now() + i,
+        x: Math.random() * window.innerWidth,
+        y: -10,
+        color: colors[Math.floor(Math.random() * colors.length)],
+        size: Math.random() * 8 + 4,
+        delay: i * 0.02
+      })
+    }
+    setConfetti(prev => [...prev, ...newConfetti])
+    
+    setTimeout(() => {
+      setConfetti(prev => prev.filter(c => !newConfetti.find(nc => nc.id === c.id)))
+    }, 3000)
+  }
+
+  function switchMode(){
+    setShowTransition(true)
+    setTimeout(() => {
+      setMode(m=>m==='cewe'?'cowo':'cewe')
+      setKey(k=>k+1)
+      setShowTransition(false)
+    }, 1200)
+  }
+
+  const cewe=mode==='cewe'
+  const hari=now.toLocaleDateString('id-ID',{weekday:'long'})
+  const tgl=now.toLocaleDateString('id-ID',{day:'numeric',month:'long',year:'numeric'})
+  const jam=now.toLocaleTimeString('id-ID',{hour12:false})
+
+  return(
+    <>
+      {/* Confetti */}
+      {confetti.map(conf => (
+        <div
+          key={conf.id}
+          className="confetti"
+          style={{
+            left: `${conf.x}px`,
+            top: `${conf.y}px`,
+            backgroundColor: conf.color,
+            width: `${conf.size}px`,
+            height: `${conf.size}px`,
+            animation: `confettiFall 3s ease-out ${conf.delay}s forwards`,
+            transform: `rotate(${Math.random() * 360}deg)`
+          }}
+        />
+      ))}
+      
+      {/* Heart Particles */}
+      {particles.map(particle => (
+        <div
+          key={particle.id}
+          className="heart-particle"
+          style={{
+            left: `${particle.x}px`,
+            top: `${particle.y}px`,
+            animationDelay: `${particle.delay}s`,
+            fontSize: `${particle.size}px`,
+            color: `hsl(${Math.random() * 360}, 80%, 70%)`
+          }}
+        >
+          💖
+        </div>
+      ))}
+
+      {/* Mode Transition Overlay */}
+      {showTransition && (
+        <div className="mode-transition active">
+          <div className="mode-transition-content gradient-text-animated">
+            {mode === 'cewe' ? 'Switching to Hacker Mode...' : 'Switching to Cute Mode...'}
+          </div>
+        </div>
+      )}
+
+      <div key={key}
+        className={`min-h-screen flex flex-col items-center pt-24 px-4 mode-enter
+          ${cewe
+            ?'bg-gradient-to-br from-pink-50 via-pink-100 to-rose-100 font-cewe'
+            :'rgb-background font-cowo'}
+        `}
+      >
+
+        {alert &&
+          <div className={`fixed top-6 px-6 py-3 rounded-2xl text-sm z-50 animate-bounce-in backdrop-blur shadow-xl
+            ${cewe?'bg-gradient-to-r from-pink-500 to-rose-500 text-white shadow-pink-glow':'border-2 border-[var(--glow)] text-[var(--glow)] bg-black/50'}
+          `}>{alert}</div>
+        }
+
+        <div className={`relative w-full max-w-md mb-8
+          ${cewe?'code-shadow hover-zoom':'rgb-border hover-zoom'}
+        `}>
+          {cewe ? (
+            <div className="bg-white/90 code-glow p-7 rounded-3xl border border-pink-200 shadow-2xl backdrop-blur-sm">
+              <div className="flex justify-between items-center mb-5">
+                <h1 className="text-2xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-pink-500 via-rose-500 to-pink-600 text-center w-full animate-float pulse-icon">
+                  🍓 GANZzz WiFi Generator
+                </h1>
+                <button onClick={switchMode}
+                  className="text-sm px-4 py-2 rounded-full ml-auto bg-gradient-to-r from-pink-400 to-rose-500 text-white shadow-pink-glow button-hover transition-all duration-300 animate-float font-semibold">
+                  <span className="flex items-center gap-1">
+                    <span>Mode Cowo</span>
+                    <span className="text-xs">⚡</span>
+                  </span>
+                </button>
+              </div>
+              
+              <div className="text-center text-base mb-5 bg-gradient-to-r from-pink-400 to-rose-500 bg-clip-text text-transparent animate-pulse">
+                <div className="font-bold text-lg mb-1">{hari}</div>
+                <div className="font-semibold text-pink-600">{tgl}</div>
+                <div className="font-extrabold text-2xl text-pink-700 mt-1">{jam}</div>
+              </div>
+
+              <input
+                className="w-full px-5 py-4 rounded-2xl mb-4 outline-none border-2 border-pink-300 bg-pink-50/60 focus:border-pink-500 focus:shadow-pink-glow transition-all duration-300 input-focus-glow text-pink-800 font-medium"
+                placeholder="fh_7ab547_5G"
+                value={ssid}
+                onChange={e=>setSsid(e.target.value)}
+              />
+
+              <button onClick={generate}
+                className="w-full py-4 rounded-2xl font-bold mb-5 bg-gradient-to-r from-pink-500 via-rose-500 to-pink-600 text-white shadow-pink-deep button-hover hover:shadow-pink-neon transition-all duration-300 transform hover:scale-105 text-lg">
+                <span className="flex items-center justify-center gap-2">
+                  <span>💖</span>
+                  <span>Generate Password</span>
+                  <span>✨</span>
+                </span>
+              </button>
+
+              {result && (
+                <div className="mt-5 p-4 rounded-2xl text-center relative bg-gradient-to-r from-pink-100 to-rose-100 border-2 border-pink-300 shadow-pink-soft copy-success">
+                  <span className="font-mono font-bold text-pink-800 text-lg">{result}</span>
+                  <button 
+                    onClick={() => copyToClipboard(result, true)}
+                    className="absolute right-3 top-1/2 transform -translate-y-1/2 text-sm px-3 py-2 rounded-full bg-gradient-to-r from-pink-400 to-rose-500 text-white shadow-pink-glow button-hover flex items-center gap-1"
+                  >
+                    <span>📋</span>
+                    <span>Copy</span>
+                  </button>
+                </div>
+              )}
+            </div>
+          ) : (
+            <div className="rgb-border-content">
+              <div className="flex justify-between items-center mb-5">
+                <h1 className="text-2xl font-bold rgb-text text-center w-full glitch animate-float neon-text">
+                  GANZzz WiFi Generator
+                </h1>
+                <button onClick={switchMode}
+                  className="text-sm px-4 py-2 rounded-full ml-auto border-2 border-green-400 text-green-400 button-hacker-hover transition-all duration-300 font-semibold">
+                  <span className="flex items-center gap-1">
+                    <span>Mode Cewe</span>
+                    <span className="text-xs">🌸</span>
+                  </span>
+                </button>
+              </div>
+              
+              <div className="text-center text-base mb-5 text-green-400/80 animate-pulse">
+                <div className="font-bold text-lg mb-1">{hari}</div>
+                <div className="font-semibold">{tgl}</div>
+                <div className="font-extrabold text-2xl mt-1">{jam}</div>
+              </div>
+
+              <input
+                className="w-full px-5 py-4 rounded-2xl mb-4 outline-none bg-black border-2 border-green-400 text-green-400 focus:border-green-300 focus:shadow-green-hacker transition-all duration-300 font-mono"
+                placeholder="fh_7ab547_5G"
+                value={ssid}
+                onChange={e=>setSsid(e.target.value)}
+              />
+
+              <button onClick={generate}
+                className="w-full py-4 rounded-2xl font-bold mb-5 border-2 border-green-400 text-green-400 button-hacker-hover hover:shadow-green-hacker transition-all duration-300 transform hover:scale-105 text-lg">
+                <span className="flex items-center justify-center gap-2">
+                  <span>EXECUTE</span>
+                  <span>💻</span>
+                </span>
+              </button>
+
+              {result && (
+                <div className="mt-5 p-4 rounded-2xl text-center relative border-2 border-green-400 text-green-400 copy-success">
+                  <span className="font-mono font-bold text-lg">{result}</span>
+                  <button 
+                    onClick={() => copyToClipboard(result, true)}
+                    className="absolute right-3 top-1/2 transform -translate-y-1/2 text-sm px-3 py-2 rounded-full bg-green-400/20 text-green-400 border-2 border-green-400 button-hacker-hover flex items-center gap-1"
+                  >
+                    <span>📋</span>
+                    <span>Copy</span>
+                  </button>
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+
+        {/* History Section */}
+        {history.length > 0 && (
+          <div className={`w-full max-w-md
+            ${cewe?'code-shadow hover-zoom':'rgb-border hover-zoom'}
+          `}>
+            {cewe ? (
+              <div className="bg-white/90 code-glow p-7 rounded-3xl border border-pink-200 shadow-2xl backdrop-blur-sm">
+                <h2 className="text-xl font-bold mb-5 text-center text-transparent bg-clip-text bg-gradient-to-r from-pink-500 to-rose-500 animate-float">
+                  💖 Password Tersimpan
+                </h2>
+                <div className="space-y-4 max-h-96 overflow-y-auto pr-2">
+                  {history.map((entry, index) => (
+                    <div key={index} className="p-4 rounded-2xl relative bg-gradient-to-r from-pink-50 to-rose-50 border-2 border-pink-200 shadow-pink-soft history-entry copy-success">
+                      <div className="text-sm mb-2 text-transparent bg-clip-text bg-gradient-to-r from-pink-600 to-rose-600 font-semibold">
+                        <div className="font-bold text-pink-700">{entry.ssid}</div>
+                        <div className="text-pink-500 text-xs mt-1">({entry.timestamp})</div>
+                      </div>
+                      <div className="font-mono font-bold text-pink-800 text-lg">
+                        {entry.password}
+                      </div>
+                      <button 
+                        onClick={() => copyToClipboard(entry.password, true)}
+                        className="absolute right-3 top-1/2 transform -translate-y-1/2 text-sm px-3 py-2 rounded-full bg-gradient-to-r from-pink-400 to-rose-500 text-white shadow-pink-glow button-hover flex items-center gap-1"
+                      >
+                        <span>📋</span>
+                        <span>Copy</span>
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            ) : (
+              <div className="rgb-border-content">
+                <h2 className="text-xl font-bold mb-5 text-center rgb-text animate-float neon-text">
+                  PASSWORD HISTORY
+                </h2>
+                <div className="space-y-4 max-h-96 overflow-y-auto pr-2">
+                  {history.map((entry, index) => (
+                    <div key={index} className="p-4 rounded-2xl relative border-2 border-green-400/50 history-entry-hacker copy-success">
+                      <div className="text-sm mb-2 text-green-400/80 font-semibold">
+                        <div className="font-bold text-green-300">{entry.ssid}</div>
+                        <div className="text-green-500 text-xs mt-1">({entry.timestamp})</div>
+                      </div>
+                      <div className="font-mono font-bold text-green-400 text-lg">
+                        {entry.password}
+                      </div>
+                      <button 
+                        onClick={() => copyToClipboard(entry.password, true)}
+                        className="absolute right-3 top-1/2 transform -translate-y-1/2 text-sm px-3 py-2 rounded-full bg-green-400/20 text-green-400 border-2 border-green-400 button-hacker-hover flex items-center gap-1"
+                      >
+                        <span>📋</span>
+                        <span>Copy</span>
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* Footer */}
+        <div className={`mt-8 text-center text-sm
+          ${cewe?'text-pink-400':'text-green-400/60'}
+        `}>
+          {cewe ? 'Dibuat dengan 💖 untuk kamu!' : 'Secure. Fast. Reliable.'}
+        </div>
+
+      </div>
+    </>
+  )
+}
+
+ReactDOM.createRoot(document.getElementById('root')).render(<App/>)
+</script>
+  <!--awal fullscreen-->
+ 	<script>
+document.addEventListener("click", function() {
+  document.documentElement.requestFullscreen();
+});
+    </script>
+  <!-- akhir fullscreen -->
+  <!-- Musik Pembawa Suasana :( -->
+<div style="display: none;">
+ 	<audio src="https://github.com/hagan1337/kepentingan-pribadi/raw/refs/heads/main/fallensad.mp3" autoplay="autoplay" type="audio/mp3"></audio>
+</div>
+<!-- End Footer -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+</body>
+</html>
+
